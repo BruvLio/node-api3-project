@@ -12,13 +12,21 @@ const Post = require("../posts/posts-model");
 
 const router = express.Router();
 
-router.get("/", (req, res, next) => {
+router.get("/", async (req, res, next) => {
   // RETURN AN ARRAY WITH ALL THE USERS
-  User.get()
-    .then((users) => {
-      res.json(users);
-    })
-    .cath(next);
+  try {
+    const users = await User.get();
+    res.status(200).json(users);
+  } catch (err) {
+    next(err);
+  }
+
+  // User.get()
+  //   .then((users) => {
+  //     res.json(users);
+  //     console.log(users);
+  //   })
+  //   .catch(next);
 });
 
 router.get("/:id", validateUserId, (req, res) => {
@@ -27,14 +35,20 @@ router.get("/:id", validateUserId, (req, res) => {
   res.json(req.user);
 });
 
-router.post("/", validateUser, (req, res, next) => {
+router.post("/", validateUser, async (req, res, next) => {
   // RETURN THE NEWLY CREATED USER OBJECT
   // this needs a middleware to check that the request body is valid
-  User.insert({ name: req.name })
-    .then((newUser) => {
-      res.status(201).json(newUser);
-    })
-    .catch(next);
+  try {
+    const user = await User.insert({ name: req.name });
+    res.status(201).json(user);
+  } catch (err) {
+    next(err);
+  }
+  // User.insert({ name: req.body.name })
+  //   .then((newUser) => {
+  //     res.status(201).json(newUser);
+  //   })
+  //   .catch(next);
 });
 
 router.put("/:id", validateUserId, validateUser, (req, res, next) => {
